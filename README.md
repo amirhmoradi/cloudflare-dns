@@ -24,6 +24,6 @@ PoeticMetric is a privacy-first, regulation-compliant, blazingly fast analytics 
 
 No cookies or personal data collection. So you don't have to worry about cookie banners or GDPR, CCPA, and PECR compliance.
 
-## License
+## Licenseaa
 
 Copyright © 2022, Gokhan Sari. Released under the [MIT License](LICENSE).
