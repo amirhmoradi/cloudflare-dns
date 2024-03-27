@@ -9,6 +9,23 @@ permissions:
   contents: write
 
 jobs:
+
+  get-tag:
+    name: Get latest tag number
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Get Tags
+        id: tags
+        run: |
+          git fetch --tags
+          echo "Tags fetched"
+      - name: Get Latest Tag
+        id: latest-tag
+        run: |
+          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+
   release:
     name: Release pushed tag
     runs-on: ubuntu-22.04
@@ -18,6 +35,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
         run: |
-          gh release create v1.2 \
+          gh release create 1.2 \
               --repo="$GITHUB_REPOSITORY" \
               --generate-notes
