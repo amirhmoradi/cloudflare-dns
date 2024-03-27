@@ -27,7 +27,7 @@ jobs:
         id: latest-tag
         run: |
           latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-          if [[ ${{ github.event.pull_request.title }} == hotfix* ]]; then
+          if [[ "${{ github.event.pull_request.title }}" == hotfix* ]]; then
             latest_tag_increment=$(echo "$latest_tag + 0.0.1" | bc)
           else
             latest_tag_increment=$(echo "$latest_tag + 0.1" | bc)
