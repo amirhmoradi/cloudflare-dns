@@ -32,6 +32,7 @@ jobs:
 
   release:
     name: Release pushed tag
+    needs: get-tag
     runs-on: ubuntu-22.04
     steps:
       - name: Create release
@@ -39,6 +40,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
         run: |
-          gh release create 1.2 '${{needs.get-tag.outputs.latest_tag_increment}}' \
+          gh release create '${{needs.get-tag.outputs.latest_tag_increment}}' \
               --repo="$GITHUB_REPOSITORY" \
               --generate-notes
