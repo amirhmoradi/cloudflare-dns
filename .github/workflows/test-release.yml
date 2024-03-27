@@ -13,6 +13,8 @@ jobs:
   get-tag:
     name: Get latest tag number
     runs-on: ubuntu-22.04
+    outputs:
+      latest_tag_increment: ${{ steps.latest-tag.outputs.latest_tag_increment }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -26,7 +28,7 @@ jobs:
         run: |
           latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
           latest_tag_increment=$(echo "$latest_tag + 0.1" | bc)
-          echo $latest_tag_increment
+          echo "latest_tag_increment"=${latest_tag_increment} >> $GITHUB_OUTPUT
 
   release:
     name: Release pushed tag
@@ -37,6 +39,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
         run: |
-          gh release create 1.2 \
+          gh release create 1.2 '${{needs.get-tag.outputs.latest_tag_increment}}' \
               --repo="$GITHUB_REPOSITORY" \
               --generate-notes
