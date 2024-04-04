@@ -14,7 +14,7 @@ jobs:
     name: Get latest tag number
     runs-on: ubuntu-22.04
     outputs:
-      latest_tag_increment: ${{ steps.latest-tag.outputs.latest_tag_increment }}
+      new_version: ${{ steps.latest-tag.outputs.new_version }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -27,12 +27,16 @@ jobs:
         id: latest-tag
         run: |
           latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+          IFS='.' read -r -a version_parts <<< "$latest_tag"
+          major="${version_parts[0]}"
+          minor="${version_parts[1]}"
+          patch="${version_parts[2]}"
           if [[ "${{ github.event.pull_request.title }}" == hotfix* ]]; then
-            latest_tag_increment=$(echo "$latest_tag + 0.0.1" | bc)
+            new_version="$major.$minor.$((patch + 1))"
           else
-            latest_tag_increment=$(echo "$latest_tag + 0.1" | bc)
+            new_version="$major.$((minor + 1)).$patch"
           fi
-          echo "latest_tag_increment"=${latest_tag_increment} >> $GITHUB_OUTPUT
+          echo "new_version"=${new_version} >> $GITHUB_OUTPUT
 
   release:
     name: Release pushed tag
@@ -44,6 +48,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
         run: |
-          gh release create '${{needs.get-tag.outputs.latest_tag_increment}}' \
+          gh release create '${{needs.get-tag.outputs.new_version}}' \
               --repo="$GITHUB_REPOSITORY" \
               --generate-notes
