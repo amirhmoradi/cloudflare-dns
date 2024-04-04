@@ -9,47 +9,7 @@ permissions:
   contents: write
 
 jobs:
-
-  get-tag:
-    name: Get latest tag number
-    runs-on: ubuntu-22.04
-    outputs:
-      new_version: ${{ steps.latest-tag.outputs.new_version }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Get Tags
-        id: tags
-        run: |
-          git fetch --tags
-          echo "Tags fetched"
-      - name: Get Latest Tag
-        id: latest-tag
-        run: |
-          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
-          IFS='.' read -r -a version_parts <<< "$latest_tag"
-          major="${version_parts[0]}"
-          minor="${version_parts[1]}"
-          patch="${version_parts[2]}"
-          if [[ "${{ github.event.pull_request.title }}" == hotfix* ]]; then
-            new_version="$major.$minor.$((patch + 1))"
-          elif [[ "${{ github.event.pull_request.title }}" == major* ]]; then
-            new_version="$((major + 1)).0.0"
-          else
-            new_version="$major.$((minor + 1)).0"
-          fi
-          echo "new_version=$new_version" >> $GITHUB_OUTPUT
-
   release:
-    name: Release pushed tag
-    needs: get-tag
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
-        run: |
-          gh release create '${{needs.get-tag.outputs.new_version}}' \
-              --repo="$GITHUB_REPOSITORY" \
-              --generate-notes
+      - uses: ./.github/actions/create_release
