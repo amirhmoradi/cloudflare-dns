@@ -26,12 +26,12 @@ runs:
         else
           new_version="$major.$((minor + 1)).0"
         fi
+        echo "new_version=${new_version}" >> $GITHUB_OUTPUT
     - name: Create release
-      shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ github.ref_name }}
       run: |
-        gh release create '${{new_version}}' \
+        gh release create '${{ steps.latest-tag.outputs.new_version }}' \
             --repo="$GITHUB_REPOSITORY" \
             --generate-notes
