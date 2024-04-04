@@ -34,7 +34,7 @@ jobs:
           if [[ "${{ github.event.pull_request.title }}" == hotfix* ]]; then
             new_version="$major.$minor.$((patch + 1))"
           else
-            new_version="$major.$((minor + 1)).$patch"
+            new_version="$major.$((minor + 1)).0"
           fi
           echo "new_version"=${new_version} >> $GITHUB_OUTPUT
 
