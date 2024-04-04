@@ -33,6 +33,8 @@ jobs:
           patch="${version_parts[2]}"
           if [[ "${{ github.event.pull_request.title }}" == hotfix* ]]; then
             new_version="$major.$minor.$((patch + 1))"
+          if [[ "${{ github.event.pull_request.title }}" == major* ]]; then
+            new_version="$((major + 1).0.0"
           else
             new_version="$major.$((minor + 1)).0"
           fi
