@@ -33,12 +33,12 @@ jobs:
           patch="${version_parts[2]}"
           if [[ "${{ github.event.pull_request.title }}" == hotfix* ]]; then
             new_version="$major.$minor.$((patch + 1))"
-          elif  [[ "${{ github.event.pull_request.title }}" == major* ]]; then
-            new_version="$((major + 1).0.0"
+          elif [[ "${{ github.event.pull_request.title }}" == major* ]]; then
+            new_version="$((major + 1)).0.0"
           else
             new_version="$major.$((minor + 1)).0"
           fi
-          echo "new_version"=${new_version} >> $GITHUB_OUTPUT
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
   release:
     name: Release pushed tag
