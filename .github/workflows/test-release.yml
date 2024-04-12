@@ -52,5 +52,5 @@ jobs:
         run: |
           gh release create '${{needs.get-tag.outputs.new_version}}' \
               --repo="$GITHUB_REPOSITORY" \
-              --generate-notes
+              --generate-notes \
               --title 'Release ${{needs.get-tag.outputs.new_version}}'
