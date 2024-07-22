@@ -12,9 +12,12 @@ jobs:
 
   get-tag:
     name: Get latest tag number
-    runs-on: ubuntu-22.04
+    needs: deploy
+    if: always() && needs.deploy.result == 'success' && github.ref_name == 'master'
+    runs-on: ubuntu-latest
     outputs:
       new_version: ${{ steps.latest-tag.outputs.new_version }}
+      latest_tag: ${{ steps.latest-tag.outputs.latest_tag }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -31,19 +34,22 @@ jobs:
           major="${version_parts[0]}"
           minor="${version_parts[1]}"
           patch="${version_parts[2]}"
-          if [[ "${{ github.event.pull_request.title }}" == hotfix* ]]; then
+          if [[ "$(git log -1 --pretty=%B | tail -1 | tr '[:upper:]' '[:lower:]')" == hotfix* ]]; then
             new_version="$major.$minor.$((patch + 1))"
-          elif [[ "${{ github.event.pull_request.title }}" == major* ]]; then
+          elif [[ "$(git log -1 --pretty=%B | tail -1 | tr '[:upper:]' '[:lower:]')" == major* ]]; then
             new_version="$((major + 1)).0.0"
           else
             new_version="$major.$((minor + 1)).0"
           fi
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo $latest_tag
+          echo "latest_tag=$latest_tag" >> GITHUB_OUTPUT
 
   release:
     name: Release pushed tag
     needs: get-tag
-    runs-on: ubuntu-22.04
+    if: always() && needs.get-tag.result == 'success' && github.ref_name == 'master'
+    runs-on: ubuntu-latest
     steps:
       - name: Create release
         env:
@@ -54,4 +60,5 @@ jobs:
               --repo="$GITHUB_REPOSITORY" \
               --generate-notes \
               --title 'Release ${{needs.get-tag.outputs.new_version}}' \
-              --target main
+              --target main \
+              --notes-start-tag '${{needs.get-tag.outputs.latest_tag}}'
